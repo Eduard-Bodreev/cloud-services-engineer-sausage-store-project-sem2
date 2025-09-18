@@ -1,7 +1,6 @@
 global:
   imagePullPolicy: Always
 
-
 frontend:
   replicas: 1
   revisionHistoryLimit: 15
@@ -11,12 +10,12 @@ frontend:
     port: 80
   ingress:
     enabled: true
-    host: Vulkii.2sem.students-projects.ru
+    host: front-edikbodreev.2sem.students-projects.ru
     tlsSecret: 2sem-students-projects-wildcard-secret
     path: /
     pathType: Prefix
   containerPort: 80
-  image: YOUR_DOCKERHUB/sausage-frontend:latest
+  image: edik1511/sausage-frontend:latest
   resources:
     requests:
       memory: "128Mi"
@@ -46,7 +45,7 @@ backend:
     rollingUpdate:
       maxUnavailable: 1
       maxSurge: 1
-  image: YOUR_DOCKERHUB/sausage-backend:latest
+  image: edik1511/sausage-backend:latest
   imagePullPolicy: Always
   resources:
     requests:
@@ -60,7 +59,7 @@ backend:
     httpGet:
       path: /actuator/health
       port: 8080
-    initialDelaySeconds: 20
+    initialDelaySeconds: 60
     periodSeconds: 15
     timeoutSeconds: 5
     failureThreshold: 3
@@ -79,22 +78,15 @@ backend:
             memory: "512Mi"
 
 backend-report:
-  image: YOUR_DOCKERHUB/sausage-backend-report:latest"
-
-  global:
-    imagePullPolicy: IfNotPresent
-
+  image: edik1511/sausage-backend-report:latest
   replicas: 1
   revisionHistoryLimit: 3
   strategy:
     type: Recreate
-
   containerPort: 8080
-
   env:
     port: "8080"
-    db: "mongodb://mongodb:27017/reports"
-
+    db: "mongodb://reports:reportspassword@mongodb:27017/sausage-store?authSource=sausage-store"
   resources:
     requests:
       cpu: "50m"
@@ -102,30 +94,19 @@ backend-report:
     limits:
       cpu: "100m"
       memory: "128Mi"
-
   livenessProbe:
     httpGet:
       path: /health
       port: 8080
-    initialDelaySeconds: 10
+    initialDelaySeconds: 60
     periodSeconds: 20
-
-  readinessProbe:
-    httpGet:
-      path: /health
-      port: 8080
-    initialDelaySeconds: 5
-    periodSeconds: 10
-
   hpa:
     enabled: true
     minReplicas: 1
     maxReplicas: 3
     cpuUtilizationPercentage: 60
 
-
 infra:
-  postgresql:
   mongodb:
     env:
       MONGO_INITDB_ROOT_USERNAME: root
@@ -137,4 +118,3 @@ infra:
       POSTGRESQL_INITDB_ROOT_PASSWORD: storepassword
       POSTGRESQL_INITDB_ROOT_DB: sausage-store
     containerPort: 5432
-
