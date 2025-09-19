@@ -86,7 +86,7 @@ backend-report:
   containerPort: 8080
   env:
     port: "8080"
-    db: "mongodb://reports:reportspassword@mongodb:27017/sausage-store?authSource=sausage-store"
+    db: "mongodb://root:rootpassword@mongodb:27017/sausage-store?authSource=admin"
   resources:
     requests:
       cpu: "50m"
