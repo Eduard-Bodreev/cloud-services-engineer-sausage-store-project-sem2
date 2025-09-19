@@ -1,13 +1,11 @@
 FROM maven:3.8.2-openjdk-16-slim as builder
-ARG VERSION=${VERSION}
 WORKDIR /usr/src/app
 COPY ./src ./src
 COPY *.xml ./
 
-RUN mvn package -Dversion.application=${VERSION}
+RUN mvn package
 
 FROM openjdk:16-jdk-alpine
-ARG VERSION=${VERSION}
 WORKDIR /app
 
 RUN addgroup --system jaruser \
@@ -19,7 +17,7 @@ RUN addgroup --system jaruser \
     && chown -R jaruser:jaruser /logs
 
 COPY --chown=jaruser:jaruser \
-     --from=builder /usr/src/app/target/sausage-store-${VERSION}.jar ./sausage-store.jar
+     --from=builder /usr/src/app/target/*.jar ./sausage-store.jar
 
 EXPOSE 8080
 USER jaruser
